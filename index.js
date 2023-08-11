@@ -1,5 +1,5 @@
 // DEPENDENCIES
-
+const Joi = require("joi");
 const express = require("express");
 const app = express();
 
@@ -22,7 +22,22 @@ app.get("/api/courses", (req, res) => {
 
 // Define a route for handling POST requests to "/api/courses"
 app.post("/api/courses", (req, res) => {
-  // Create a new course object with an ID and name extracted
+  // this part is different from MOST because we are using the latest version
+  const schema = Joi.object({
+    name: Joi.string().min(3).required(),
+  });
+
+  const result = schema.validate(req.body);
+  console.log(result);
+
+  if (result.error) {
+    //  400 Bed Request
+    res.status(400).send(result.error);
+    return;
+  }
+
+  // ENDED Mosh @ 42.38 - https://www.youtube.com/watch?v=pKd0Rpw7O48&t=546s
+  // Create a new course obje ct with an ID and name extracted
   // from the request body
   const course = {
     id: courses.length + 1, // Generate a new ID by counting existing courses and adding 1
@@ -35,7 +50,7 @@ app.post("/api/courses", (req, res) => {
 
   // Send a response indicating success, along with the course
   // object's information
-  res.sendStatus(course); // This line should likely be changed to 'res.status(201).send(course);'
+  res.send(course); // This line should likely be changed to 'res.status(201).send(course);'
 });
 
 app.get("/api/courses/:id", (req, res) => {
