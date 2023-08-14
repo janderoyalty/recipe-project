@@ -1,5 +1,4 @@
 .DS_Store
 .env
 yarn.lock
-package.json
 node_modules/

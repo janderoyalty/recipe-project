@@ -23,21 +23,13 @@ app.get("/api/courses", (req, res) => {
 // Define a route for handling POST requests to "/api/courses"
 app.post("/api/courses", (req, res) => {
   // this part is different from MOST because we are using the latest version
-  const schema = Joi.object({
-    name: Joi.string().min(3).required(),
-  });
-
-  const result = schema.validate(req.body);
-  console.log(result);
-
-  if (result.error) {
-    //  400 Bed Request
-    res.status(400).send(result.error);
-    return;
+  const { error } = validateCourse(req.body); //result.error
+  // if invalid, return 400 - Bad request
+  if (error) {
+    return res.status(400).send(error.details[0].message);
   }
 
-  // ENDED Mosh @ 42.38 - https://www.youtube.com/watch?v=pKd0Rpw7O48&t=546s
-  // Create a new course obje ct with an ID and name extracted
+  // Create a new course object with an ID and name extracted
   // from the request body
   const course = {
     id: courses.length + 1, // Generate a new ID by counting existing courses and adding 1
@@ -53,13 +45,51 @@ app.post("/api/courses", (req, res) => {
   res.send(course); // This line should likely be changed to 'res.status(201).send(course);'
 });
 
+app.put("/api/courses/:id", (req, res) => {
+  //look up the course
+  const course = courses.find((c) => c.id === parseInt(req.params.id));
+  if (!course) {
+    return res.status(404).send("course w/ given id not found");
+  }
+  // validate
+  const { error } = validateCourse(req.body); //result.error
+  if (error) {
+    return res.status(400).send(error.details[0].message);
+  }
+  //Update and return the updated course
+  course.name = req.body.name;
+  res.send(course);
+});
+
+function validateCourse(course) {
+  const schema = Joi.object({
+    name: Joi.string().min(3).required(),
+  });
+  return schema.validate(course);
+}
+
 app.get("/api/courses/:id", (req, res) => {
   // c is parameter representing courses being passed into anon function
   const course = courses.find((c) => c.id === parseInt(req.params.id));
   // if (condition) {do this} -- we can leave out the {}
-  if (!course) res.status(400).send("course w/ given id not found");
+  if (!course) {
+    return res.status(400).send("course w/ given id not found");
+  }
   // else {} -- we can leave out the word else and the {}
   res.send(course); //else statement
+});
+
+app.delete("/api/courses/:id", (req, res) => {
+  //look up the course
+  const course = courses.find((c) => c.id === parseInt(req.params.id));
+  if (!course) {
+    return res.status(404).send("course w/ given id not found");
+  }
+  //delete
+  const index = courses.indexOf(course);
+  courses.splice(index, 1);
+
+  res.send(course);
 });
 
 const port = process.env.PORT || 3000;
