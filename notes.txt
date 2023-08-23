@@ -1,0 +1,15 @@
+CREATE TABLE users (
+	id BIGSERIAL NOT NULL PRIMARY KEY,
+	first_name VARCHAR(50) NOT NULL,
+	last_name VARCHAR(50) NOT NULL,
+	email VARCHAR(100) NOT NULL UNIQUE,
+	account_create TIMESTAMPTZ NOT NULL DEFAULT NOW,
+	account_updated TIMESTAMPTZ NOT NULL DEFAULT NOW,
+	account_last_logged_in TIMESTAMPTZ NOT NULL DEFAULT NOW,
+	user_recipes (array of objects? maybe)
+	auth (user password)
+
+	CHECK(
+		email ~ '^[\w]+\@\w{0,6}\.\w{2,4}$'
+)
+	)
